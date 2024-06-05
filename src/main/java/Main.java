@@ -14,27 +14,36 @@ Poniższe zadania będą się sprowadzały do modyfikacji bazowego kodu. Proces 
 
 import java.io.IOException;
 import java.util.Scanner;
-import java.io.IOException;
 
 class WrongStudentName extends Exception { }
 
-class Main {
+public class Main {
     public static Scanner scan = new Scanner(System.in);
 
     public static void main(String[] args) {
-        while(true) {
+        Service service = new Service();
+        while (true) {
             try {
                 int ex = menu();
-                switch(ex) {
-                    case 1: exercise1(); break;
-                    case 2: exercise2(); break;
-                    case 3: exercise3(); break;
-                    default: return;
+                switch (ex) {
+                    case 1:
+                        exercise1(service);
+                        break;
+                    case 2:
+                        exercise2(service);
+                        break;
+                    case 3:
+                        exercise3(service);
+                        break;
+                    default:
+                        return;
                 }
-            } catch(IOException e) {
-
-            } catch(WrongStudentName e) {
+            } catch (IOException e) {
+                System.out.println("An IO error occurred: " + e.getMessage());
+            } catch (WrongStudentName e) {
                 System.out.println("Błędne imie studenta!");
+            } catch (IllegalArgumentException e) {
+                System.out.println("Invalid input: " + e.getMessage());
             }
         }
     }
@@ -48,43 +57,48 @@ class Main {
         return scan.nextInt();
     }
 
-    public static String ReadName() throws WrongStudentName {
-        scan.nextLine();
+    public static String readName() throws WrongStudentName {
+        scan.nextLine(); // Consume the newline character
         System.out.println("Podaj imie: ");
         String name = scan.nextLine();
-        if(name.contains(" "))
+        if (name.contains(" ")) {
             throw new WrongStudentName();
-
+        }
         return name;
     }
 
-    public static void exercise1() throws IOException, WrongStudentName {
-        var name = ReadName();
-        System.out.println("Podaj wiek: ");
-        var age = scan.nextInt();
-        scan.nextLine();
-        System.out.println("Podaj datę urodzenia DD-MM-YYY");
-        var date = scan.nextLine();
-        (new Service()).addStudent(new Student(name, age, date));
+    public static void exercise1(Service service) throws IOException, WrongStudentName {
+        String name = readName();
+        System.out.println("Podaj wiek (0-100): ");
+        int age = scan.nextInt();
+        while (age < 0 || age > 100) {
+            System.out.println("Wiek musi być między 0 a 100. Podaj wiek ponownie: ");
+            age = scan.nextInt();
+        }
+        scan.nextLine(); // Consume the newline character
+        System.out.println("Podaj datę urodzenia DD-MM-YYYY:");
+        String date = scan.nextLine();
+        service.addStudent(new Student(name, age, date));
+        System.out.println("Student added successfully.");
     }
 
-    public static void exercise2() throws IOException {
-        var students = (new Service()).getStudents();
-        for(Student current : students) {
-            System.out.println(current.ToString());
+    public static void exercise2(Service service) throws IOException {
+        var students = service.getStudents();
+        for (Student student : students) {
+            System.out.println(student.toString());
         }
     }
 
-    public static void exercise3() throws IOException {
-        scan.nextLine();
+    public static void exercise3(Service service) throws IOException {
+        scan.nextLine(); // Consume the newline character
         System.out.println("Podaj imie: ");
-        var name = scan.nextLine();
-        var wanted = (new Service()).findStudentByName(name);
-        if(wanted == null)
+        String name = scan.nextLine();
+        var student = service.findStudentByName(name);
+        if (student == null) {
             System.out.println("Nie znaleziono...");
-        else {
+        } else {
             System.out.println("Znaleziono: ");
-            System.out.println(wanted.ToString());
+            System.out.println(student.toString());
         }
     }
 }
