@@ -5,36 +5,37 @@ import java.io.BufferedWriter;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+
 public class Service {
 
     public void addStudent(Student student) throws IOException {
-        var f = new FileWriter("db.txt", true);
-        var b = new BufferedWriter(f);
-        b.append(student.ToString());
-        b.newLine();
-        b.close();
+        try (var b = new BufferedWriter(new FileWriter("db.txt", true))) {
+            b.write(student.toString()); // Write the Student object as a string
+            b.newLine();
+        }
     }
 
     public Collection<Student> getStudents() throws IOException {
-        var ret = new ArrayList<Student>();
-        var f = new FileReader("db.txt");
-        var reader = new BufferedReader(f);
-        String line = "";
-        while (true) {
-            line = reader.readLine();
-            if(line == null)
-                break;
-            ret.add(Student.Parse(line));
+        var students = new ArrayList<Student>();
+        try (var reader = new BufferedReader(new FileReader("db.txt"))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                try {
+                    students.add(Student.parse(line));
+                } catch (IllegalArgumentException e) {
+                    System.out.println("Skipping invalid entry: " + line);
+                }
+            }
         }
-        reader.close();
-        return ret;
+        return students;
     }
 
     public Student findStudentByName(String name) throws IOException {
         var students = this.getStudents();
-        for(Student current : students) {
-            if(current.GetName().equals(name))
-                return current;
+        for (Student student : students) {
+            if (student.getName().equalsIgnoreCase(name)) {
+                return student;
+            }
         }
         return null;
     }

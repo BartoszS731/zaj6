@@ -75,11 +75,27 @@ public class Main {
             System.out.println("Wiek musi być między 0 a 100. Podaj wiek ponownie: ");
             age = scan.nextInt();
         }
+        System.out.println("Podaj dzień urodzenia (0-31): ");
+        int day = scan.nextInt();
+        while (day < 1 || day > 31) {
+            System.out.println("Dzień musi być między 1 a 31. Podaj dzień ponownie: ");
+            day = scan.nextInt();
+        }
+        System.out.println("Podaj miesiąc urodzenia (1-12): ");
+        int month = scan.nextInt();
+        while (month < 1 || month > 12) {
+            System.out.println("Miesiąc musi być między 1 a 12. Podaj miesiąc ponownie: ");
+            month = scan.nextInt();
+        }
+        System.out.println("Podaj rok urodzenia: ");
+        int year = scan.nextInt();
         scan.nextLine(); // Consume the newline character
-        System.out.println("Podaj datę urodzenia DD-MM-YYYY:");
-        String date = scan.nextLine();
-        service.addStudent(new Student(name, age, date));
-        System.out.println("Student added successfully.");
+        try {
+            service.addStudent(new Student(name, age, day, month, year));
+            System.out.println("Student added successfully.");
+        } catch (IllegalArgumentException e) {
+            System.out.println("Invalid date format.");
+        }
     }
 
     public static void exercise2(Service service) throws IOException {
@@ -102,3 +118,4 @@ public class Main {
         }
     }
 }
+
